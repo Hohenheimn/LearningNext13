@@ -5,6 +5,8 @@ import { setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 
+import api from "@/util/api";
+
 import Card from "../Card";
 
 function Login() {
@@ -17,10 +19,18 @@ function Login() {
     formState: { errors },
   } = useForm<any>();
 
-  const Submit = (data: any) => {
-    console.log(data);
-    setCookie("user", data.password);
-    router.refresh();
+  const Submit = async (data: any) => {
+    try {
+      const response = await api.post("/auth/login", {
+        email: data.username,
+        password: data.password,
+      });
+      const { token } = await response.data;
+      setCookie("user", token);
+      router.refresh();
+    } catch (error: any) {
+      console.log(error);
+    }
     // deleteCookie("user-password");
   };
 
